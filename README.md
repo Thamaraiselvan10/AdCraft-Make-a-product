@@ -1,10 +1,23 @@
+
+<div align="center">
+
 # 🎨 AdCraft AI
 
 ### Next-Generation AI Design Studio for Modern Creators
 
+![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Framer](https://img.shields.io/badge/Framer_Motion-11.3-0055FF?style=for-the-badge&logo=framer&logoColor=white)
+
+<br/>
+
 AdCraft AI is an advanced design platform that leverages artificial intelligence to generate stunning social media posters, video ads, logos, and business cards in seconds. Built with a futuristic holographic aesthetic, it simplifies professional design for everyone.
 
 [Features](#-key-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Our Mission](#-our-mission)
+
+</div>
 
 ---
 
@@ -65,7 +78,7 @@ AdCraft AI redefines the creative workflow by combining guided wizards with powe
 4. **Start Designing**
    Open `http://localhost:5173` in your browser.
 
-## �️ Our Mission
+## 🛡️ Our Mission
 
 > "Design should be an extension of thought, not a test of tool proficiency."
 
