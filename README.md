@@ -1,42 +1,47 @@
-# 🚀 AdCraft AI
+# 🎨 AdCraft AI
 
-> **The Future of Design. Powered by Intelligence.**
+### Next-Generation AI Design Studio for Modern Creators
 
-AdCraft AI is a next-generation design studio that leverages artificial intelligence to create stunning social media posters, video ads, logos, and business cards in seconds. Built with a vibrant holographic aesthetic, it offers a premium, futuristic user experience that makes professional design accessible to everyone.
+AdCraft AI is an advanced design platform that leverages artificial intelligence to generate stunning social media posters, video ads, logos, and business cards in seconds. Built with a futuristic holographic aesthetic, it simplifies professional design for everyone.
 
-![Dashboard Preview](src/assets/preview.webp)
+[Features](#-key-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Our Mission](#-our-mission)
 
-## ✨ Features
+---
 
-### 🎨 AI Poster Wizard
-- **Multi-step Creation**: Guided workflow to capture your product details, audience, and mood.
-- **Smart Suggestions**: AI-driven formatting and style selection.
-- **Export Ready**: High-resolution downloads perfect for social media.
+## 🚀 Overview
+
+AdCraft AI redefines the creative workflow by combining guided wizards with powerful generative AI. Whether you need a product launch poster, a brand logo, or a promotional video, AdCraft AI provides a seamless, "glassmorphic" interface to bring your vision to life instantly.
+
+## ✨ Key Features
+
+### 🧙‍♂️ AI Poster Wizard
+- **Guided Creation**: A 6-step intuitive process to capture product details, target audience, and mood.
+- **Smart Formatting**: Auto-selects dimensions for Instagram Stories, LinkedIn Posts, or Web Banners.
+- **Instant Preview**: Real-time generation of layout and typography.
 
 ### 🎬 AI Video Studio
-- **Scene-based Editing**: Create compelling video narratives with ease.
-- **Timeline Control**: Precision timing for each scene.
-- **Auto-Storyboard**: Generate a complete video script and storyboard from just a product description.
+- **Scene-Based Editing**: Automatically generates a multi-scene storyboard from your product description.
+- **Timeline Control**: Fine-tune duration and flow with a precision timeline.
+- **Visual Storytelling**: Integrates text overlays, transitions, and product imagery.
 
 ### 💎 Identity & Branding
-- **Logo Maker**: Generate infinite high-quality logo variations.
-- **Business Card Designer**: Professional front/back designs with print-ready PDF export.
-- **Style Presets**: Curated holographic, neon, and glassmorphism styles.
+- **Logo Maker**: Infinite variations of logos based on industry and style preferences.
+- **Business Card Designer**: Professional front/back card designs with print-ready PDF export.
+- **Style Presets**: Choose from curated themes like *Neon Drift*, *Holographic*, and *Midnight Glass*.
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [React 18](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + Custom CSS Variables (Cyber/Holographic Theme)
-- **Animation**: [Framer Motion](https://www.framer.com/motion/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Export**: `html2canvas` + `jspdf`
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, Custom CSS Variables (Glassmorphism/Holographic Theme)
+- **Animation**: Framer Motion
+- **Icons**: Lucide React
+- **Export Engine**: `html2canvas`, `jspdf`
+- **AI Simulation**: Mock AI Service (Architecture ready for LLM integration)
 
-## 🚀 Getting Started
+## 🏁 Getting Started
 
 ### Prerequisites
-
-- Node.js 18+
+- Node.js (v18+)
 - npm or yarn
 
 ### Installation
@@ -57,23 +62,11 @@ AdCraft AI is a next-generation design studio that leverages artificial intellig
    npm run dev
    ```
 
-4. **Open in browser**
-   Navigate to `http://localhost:5173` to start creating!
+4. **Start Designing**
+   Open `http://localhost:5173` in your browser.
 
-## 📦 Building for Production
+## �️ Our Mission
 
-To create a production-ready build:
+> "Design should be an extension of thought, not a test of tool proficiency."
 
-```bash
-npm run build
-```
-
-This will generate optimized assets in the `dist` directory.
-
-## 📄 License
-
-MIT License. Free to use and modify.
-
----
-
-*Built with ❤️ by the AdCraft Team.*
+AdCraft AI aims to democratize high-end design, making "agency-quality" creatives accessible to startups, creators, and small businesses without the steep learning curve.
