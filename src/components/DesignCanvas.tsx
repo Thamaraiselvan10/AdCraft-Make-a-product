@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import type { DesignLayer, DesignState } from '../data/templates';
 
 interface DesignCanvasProps {
@@ -16,6 +17,7 @@ export const DesignCanvas: React.FC<DesignCanvasProps> = ({ design, onLayerUpdat
     // Dynamically size the canvas to fit the container
     const canvasStyle: React.CSSProperties = {
         aspectRatio: `${design.format.width} / ${design.format.height}`,
+        height: '100%',
         maxHeight: '85vh',
         maxWidth: '100%',
         backgroundColor: design.backgroundColor,
@@ -145,7 +147,7 @@ export const DesignCanvas: React.FC<DesignCanvasProps> = ({ design, onLayerUpdat
     };
 
     return (
-        <div className="flex-1 flex items-center justify-center p-6 overflow-auto relative">
+        <div className="flex-1 flex items-center justify-center p-6 overflow-auto relative h-full">
             {/* Grid background */}
             <div
                 className="absolute inset-0 z-0 opacity-10 pointer-events-none"
@@ -188,5 +190,4 @@ export const DesignCanvas: React.FC<DesignCanvasProps> = ({ design, onLayerUpdat
     );
 };
 
-// Import needed for empty state icon
-import { Sparkles } from 'lucide-react';
+

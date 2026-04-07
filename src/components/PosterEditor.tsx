@@ -11,23 +11,34 @@ import { processUserMessage, processStyleChange } from '../services/aiService';
 import type { ChatMessage } from '../services/aiService';
 import { createDefaultDesign } from '../data/templates';
 import type { DesignState, DesignLayer, FormatPreset, StylePreset } from '../data/templates';
+import type { PosterBrief } from './PosterWizard';
 import { cn } from '../lib/utils';
 import html2canvas from 'html2canvas';
 
 interface PosterEditorProps {
     onBack: () => void;
+    brief?: PosterBrief | null;
 }
 
 type RightTab = 'format' | 'colors' | 'layers';
 
-export const PosterEditor: React.FC<PosterEditorProps> = ({ onBack }) => {
+export const PosterEditor: React.FC<PosterEditorProps> = ({ onBack, brief }) => {
     const canvasRef = useRef<HTMLDivElement>(null);
-    const [design, setDesign] = useState<DesignState>(createDefaultDesign);
+    const [design, setDesign] = useState<DesignState>(() => {
+        const d = createDefaultDesign();
+        if (brief) {
+            d.format = brief.platform;
+            d.style = brief.style;
+            d.backgroundColor = brief.style.colors.bg;
+        }
+        return d;
+    });
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const [rightTab, setRightTab] = useState<RightTab>('format');
     const [showRightPanel, setShowRightPanel] = useState(true);
+    const hasInitialized = useRef(false);
 
     // ---- AI Chat Handlers ----
     const handleSendMessage = useCallback(async (message: string) => {
@@ -41,7 +52,7 @@ export const PosterEditor: React.FC<PosterEditorProps> = ({ onBack }) => {
         setIsLoading(true);
 
         try {
-            const responses = await processUserMessage(message, design, [...messages, userMsg], uploadedImage || undefined);
+            const responses = await processUserMessage(message, design, [...messages, userMsg], uploadedImage || undefined, brief);
             setMessages(prev => [...prev, ...responses]);
 
             // Apply any design updates from AI
@@ -59,7 +70,20 @@ export const PosterEditor: React.FC<PosterEditorProps> = ({ onBack }) => {
         } finally {
             setIsLoading(false);
         }
-    }, [design, messages, uploadedImage]);
+    }, [design, messages, uploadedImage, brief]);
+
+    // Auto-generate on load if brief exists
+    React.useEffect(() => {
+        if (brief && !hasInitialized.current) {
+            hasInitialized.current = true;
+            // Provide uploaded images to the state if they exist in brief
+            if (brief.productImages && brief.productImages.length > 0) {
+                setUploadedImage(brief.productImages[0]);
+            }
+            // Trigger automatic initial generation
+            handleSendMessage(`Generate a poster for ${brief.productName}`);
+        }
+    }, [brief, handleSendMessage]);
 
     const handleSuggestionClick = useCallback((suggestion: string) => {
         handleSendMessage(suggestion);
@@ -113,7 +137,7 @@ export const PosterEditor: React.FC<PosterEditorProps> = ({ onBack }) => {
     const handleStyleChange = useCallback(async (style: StylePreset) => {
         setIsLoading(true);
         try {
-            const result = await processStyleChange(style.name, design, uploadedImage || undefined);
+            const result = await processStyleChange(style.name, design, uploadedImage || undefined, brief);
             setMessages(prev => [...prev, result.message]);
             setDesign(prev => ({ ...prev, ...result.designUpdate }));
         } finally {
@@ -240,7 +264,7 @@ export const PosterEditor: React.FC<PosterEditorProps> = ({ onBack }) => {
                 </aside>
 
                 {/* Center — Canvas */}
-                <main className="flex-1 bg-muted/5 overflow-hidden">
+                <main className="flex-1 flex flex-col bg-muted/5 overflow-hidden">
                     <DesignCanvas design={design} onLayerUpdate={handleLayerUpdate} />
                 </main>
 

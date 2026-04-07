@@ -84,7 +84,7 @@ export function Dashboard() {
     }
 
     if (currentView === 'poster-editor') {
-        return <PosterEditor onBack={() => { setPosterBrief(null); setCurrentView('dashboard'); }} />;
+        return <PosterEditor brief={posterBrief} onBack={() => { setPosterBrief(null); setCurrentView('dashboard'); }} />;
     }
 
     if (currentView === 'video') {

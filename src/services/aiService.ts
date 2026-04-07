@@ -1,5 +1,6 @@
 import { STYLE_PRESETS } from '../data/templates';
 import type { DesignLayer, DesignState, StylePreset } from '../data/templates';
+import type { PosterBrief } from '../components/PosterWizard';
 
 // ---- Chat Message Types ----
 export interface ChatMessage {
@@ -41,13 +42,71 @@ function pickStyle(category: string): StylePreset {
     return STYLE_PRESETS.find(s => s.id === mapping[category]) || STYLE_PRESETS[0];
 }
 
+// ---- HF Image Generation ----
+async function generateImageWithHF(prompt: string): Promise<string | null> {
+    const apiKey = import.meta.env.VITE_HF_API_KEY;
+    if (!apiKey) {
+        console.warn('No Hugging Face API key found in VITE_HF_API_KEY.');
+        return null;
+    }
+
+    try {
+        const response = await fetch(
+            "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0",
+            {
+                headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify({ inputs: prompt }),
+            }
+        );
+        
+        if (!response.ok) {
+            console.error('HF API Error:', await response.text());
+            return null;
+        }
+
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+    } catch (err) {
+        console.error('Failed to generate image with HF:', err);
+        return null;
+    }
+}
+
 // ---- Design Generation ----
-function generateLayers(prompt: string, category: string, style: StylePreset, uploadedImage?: string): DesignLayer[] {
+async function generateLayers(
+    prompt: string, 
+    category: string, 
+    style: StylePreset, 
+    uploadedImage?: string,
+    brief?: PosterBrief | null
+): Promise<DesignLayer[]> {
     const words = prompt.split(' ').filter(w => w.length > 3);
-    const headline = words.slice(0, 4).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const headline = brief?.productName || (words.length > 0 ? words.slice(0, 4).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Your Brand');
+    const subheadline = brief?.productDescription || (prompt.length > 60 ? prompt.substring(0, 60) + '...' : prompt) || 'Premium Quality';
+    const ctaText = brief?.offerText || getCTAText(category);
+    const showCta = brief ? !!brief.offerText : true; // Show only if offer text exists when brief is present
+
+    // Dynamic Layout Logic based on style
+    let align: 'left' | 'center' | 'right' = 'left';
+    let hX = 8, hY = 15, hW = 84, sY = 38, cX = 8, cY = 72;
+    
+    if (style.id === 'luxury-gold' || style.id === 'neon-pop') {
+        align = 'center';
+        hX = 10; hY = 20; hW = 80;
+        sY = 45;
+        cX = 32.5; cY = 75; // Centers a width=35 CTA
+    } else if (style.id === 'minimal-clean' || style.id === 'ocean-breeze') {
+        align = 'left';
+        hX = 8; hY = 55; hW = 84;
+        sY = 70;
+        cX = 8; cY = 82;
+    }
 
     const layers: DesignLayer[] = [
-        // Background shape / gradient overlay
         {
             id: 'bg-overlay',
             type: 'shape',
@@ -56,7 +115,6 @@ function generateLayers(prompt: string, category: string, style: StylePreset, up
             opacity: 0.8,
             gradient: `linear-gradient(135deg, ${style.colors.bg} 0%, ${style.colors.primary}33 50%, ${style.colors.secondary}22 100%)`,
         },
-        // Decorative accent shape
         {
             id: 'accent-shape',
             type: 'shape',
@@ -66,61 +124,34 @@ function generateLayers(prompt: string, category: string, style: StylePreset, up
             backgroundColor: style.colors.primary,
             borderRadius: 50,
         },
-        // Headline
         {
             id: 'headline',
             type: 'text',
-            content: headline || 'Your Brand Here',
-            x: 8, y: 15,
-            width: 84, height: 20,
+            content: headline,
+            x: hX, y: hY, width: hW, height: 20,
             fontSize: 48,
             fontFamily: style.fontHeading,
             fontWeight: 700,
             color: style.colors.text,
-            textAlign: 'left',
+            textAlign: align,
         },
-        // Subheadline
         {
             id: 'subheadline',
             type: 'text',
-            content: prompt.length > 60 ? prompt.substring(0, 60) + '...' : prompt,
-            x: 8, y: 38,
-            width: 60, height: 10,
+            content: subheadline,
+            x: hX, y: sY, width: hW, height: 15,
             fontSize: 18,
             fontFamily: style.fontBody,
             fontWeight: 400,
             color: style.colors.secondary,
-            textAlign: 'left',
-        },
-        // CTA Button
-        {
-            id: 'cta',
-            type: 'shape',
-            content: '',
-            x: 8, y: 72,
-            width: 35, height: 8,
-            backgroundColor: style.colors.primary,
-            borderRadius: 8,
-        },
-        {
-            id: 'cta-text',
-            type: 'text',
-            content: getCTAText(category),
-            x: 8, y: 73,
-            width: 35, height: 6,
-            fontSize: 16,
-            fontFamily: style.fontBody,
-            fontWeight: 600,
-            color: style.colors.bg === '#ffffff' ? '#ffffff' : '#ffffff',
-            textAlign: 'center',
+            textAlign: align,
         },
         // Brand watermark
         {
             id: 'brand',
             type: 'text',
             content: 'AdCraft AI',
-            x: 8, y: 90,
-            width: 30, height: 5,
+            x: 8, y: 90, width: 30, height: 5,
             fontSize: 12,
             fontFamily: style.fontBody,
             fontWeight: 400,
@@ -129,6 +160,28 @@ function generateLayers(prompt: string, category: string, style: StylePreset, up
             opacity: 0.6,
         },
     ];
+
+    if (showCta) {
+        layers.push({
+            id: 'cta',
+            type: 'shape',
+            content: '',
+            x: cX, y: cY, width: 35, height: 8,
+            backgroundColor: style.colors.primary,
+            borderRadius: 8,
+        });
+        layers.push({
+            id: 'cta-text',
+            type: 'text',
+            content: ctaText,
+            x: cX, y: cY + 1, width: 35, height: 6,
+            fontSize: 16,
+            fontFamily: style.fontBody,
+            fontWeight: 600,
+            color: style.colors.bg === '#ffffff' ? '#ffffff' : '#ffffff',
+            textAlign: 'center',
+        });
+    }
 
     // Add uploaded product image layer
     if (uploadedImage) {
@@ -139,6 +192,25 @@ function generateLayers(prompt: string, category: string, style: StylePreset, up
             x: 55, y: 25,
             width: 40, height: 45,
             borderRadius: 12,
+            objectFit: 'cover',
+        });
+    }
+
+    // Add AI generated background image layer
+    let hfPrompt = `A professional advertising poster background for ${category}. ${prompt}. ${style.mood} style. high resolution, impressive graphic design, ultra detailed, no text`;
+    if (brief) {
+        hfPrompt = `A professional advertising poster background for ${brief.productName}. Audience: ${brief.targetAudience}. Context: ${brief.additionalNotes || brief.productDescription}. ${style.mood} style. high resolution, impressive graphic design, ultra detailed, no text`;
+    }
+    const aiImage = await generateImageWithHF(hfPrompt);
+    
+    if (aiImage) {
+        layers.splice(0, 0, {
+            id: 'ai-background',
+            type: 'image',
+            content: aiImage,
+            x: 0, y: 0,
+            width: 100, height: 100,
+            borderRadius: 0,
             objectFit: 'cover',
         });
     }
@@ -191,9 +263,10 @@ function makeId(): string {
 
 export async function processUserMessage(
     userMessage: string,
-    currentDesign: DesignState,
+    _currentDesign: DesignState,
     conversationHistory: ChatMessage[],
     uploadedImage?: string,
+    brief?: PosterBrief | null,
 ): Promise<ChatMessage[]> {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
@@ -217,7 +290,7 @@ export async function processUserMessage(
     }
 
     // Generate design
-    const layers = generateLayers(userMessage, category, style, uploadedImage);
+    const layers = await generateLayers(userMessage, category, style, uploadedImage, brief);
 
     responses.push({
         id: makeId(),
@@ -240,6 +313,7 @@ export async function processStyleChange(
     styleName: string,
     currentDesign: DesignState,
     uploadedImage?: string,
+    brief?: PosterBrief | null
 ): Promise<{ message: ChatMessage; designUpdate: Partial<DesignState> }> {
     await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -249,7 +323,7 @@ export async function processStyleChange(
 
     // Regenerate layers with new style
     const existingText = currentDesign.layers.find(l => l.id === 'headline')?.content || 'Your Brand';
-    const layers = generateLayers(existingText, 'general', style, uploadedImage);
+    const layers = await generateLayers(existingText, 'general', style, uploadedImage, brief);
 
     return {
         message: {
