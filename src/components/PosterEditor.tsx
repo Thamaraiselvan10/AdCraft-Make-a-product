@@ -80,8 +80,11 @@ export const PosterEditor: React.FC<PosterEditorProps> = ({ onBack, brief }) => 
             if (brief.productImages && brief.productImages.length > 0) {
                 setUploadedImage(brief.productImages[0]);
             }
-            // Trigger automatic initial generation
-            handleSendMessage(`Generate a poster for ${brief.productName}`);
+            // Trigger automatic initial generation using the poster description
+            const initialPrompt = brief.productDescription 
+                ? `${brief.productDescription}`
+                : `Generate a poster for ${brief.productName}`;
+            handleSendMessage(initialPrompt);
         }
     }, [brief, handleSendMessage]);
 

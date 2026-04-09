@@ -60,10 +60,10 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
                             <Sparkles className="w-6 h-6 text-primary" />
                         </div>
                         <p className="text-sm text-muted-foreground">
-                            Describe what you want to promote and I'll create a design for you!
+                            How do you want your poster to look? Describe the design, mood, or elements you want to see!
                         </p>
                         <div className="flex flex-wrap gap-2 justify-center">
-                            {['Create a poster for my coffee shop', 'Design a tech startup ad', 'Promote my fitness class'].map(s => (
+                            {['Cyberpunk style with neon lights', 'Minimalist with a coffee cup on wood', 'Luxury golden aesthetic'].map(s => (
                                 <button
                                     key={s}
                                     onClick={() => onSuggestionClick(s)}
@@ -143,7 +143,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({
                         value={input}
                         onChange={e => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Describe what you need..."
+                        placeholder="Describe how you want the poster to be designed..."
                         className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground py-2"
                     />
                     <Button

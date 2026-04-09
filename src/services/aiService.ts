@@ -52,7 +52,7 @@ async function generateImageWithHF(prompt: string): Promise<string | null> {
 
     try {
         const response = await fetch(
-            "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0",
+            "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
             {
                 headers: {
                     Authorization: `Bearer ${apiKey}`,
@@ -84,27 +84,7 @@ async function generateLayers(
     uploadedImage?: string,
     brief?: PosterBrief | null
 ): Promise<DesignLayer[]> {
-    const words = prompt.split(' ').filter(w => w.length > 3);
-    const headline = brief?.productName || (words.length > 0 ? words.slice(0, 4).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Your Brand');
-    const subheadline = brief?.productDescription || (prompt.length > 60 ? prompt.substring(0, 60) + '...' : prompt) || 'Premium Quality';
-    const ctaText = brief?.offerText || getCTAText(category);
-    const showCta = brief ? !!brief.offerText : true; // Show only if offer text exists when brief is present
-
-    // Dynamic Layout Logic based on style
-    let align: 'left' | 'center' | 'right' = 'left';
-    let hX = 8, hY = 15, hW = 84, sY = 38, cX = 8, cY = 72;
-    
-    if (style.id === 'luxury-gold' || style.id === 'neon-pop') {
-        align = 'center';
-        hX = 10; hY = 20; hW = 80;
-        sY = 45;
-        cX = 32.5; cY = 75; // Centers a width=35 CTA
-    } else if (style.id === 'minimal-clean' || style.id === 'ocean-breeze') {
-        align = 'left';
-        hX = 8; hY = 55; hW = 84;
-        sY = 70;
-        cX = 8; cY = 82;
-    }
+    // Removed unused text generation and alignment logic
 
     const layers: DesignLayer[] = [
         {
@@ -124,28 +104,6 @@ async function generateLayers(
             backgroundColor: style.colors.primary,
             borderRadius: 50,
         },
-        {
-            id: 'headline',
-            type: 'text',
-            content: headline,
-            x: hX, y: hY, width: hW, height: 20,
-            fontSize: 48,
-            fontFamily: style.fontHeading,
-            fontWeight: 700,
-            color: style.colors.text,
-            textAlign: align,
-        },
-        {
-            id: 'subheadline',
-            type: 'text',
-            content: subheadline,
-            x: hX, y: sY, width: hW, height: 15,
-            fontSize: 18,
-            fontFamily: style.fontBody,
-            fontWeight: 400,
-            color: style.colors.secondary,
-            textAlign: align,
-        },
         // Brand watermark
         {
             id: 'brand',
@@ -161,28 +119,6 @@ async function generateLayers(
         },
     ];
 
-    if (showCta) {
-        layers.push({
-            id: 'cta',
-            type: 'shape',
-            content: '',
-            x: cX, y: cY, width: 35, height: 8,
-            backgroundColor: style.colors.primary,
-            borderRadius: 8,
-        });
-        layers.push({
-            id: 'cta-text',
-            type: 'text',
-            content: ctaText,
-            x: cX, y: cY + 1, width: 35, height: 6,
-            fontSize: 16,
-            fontFamily: style.fontBody,
-            fontWeight: 600,
-            color: style.colors.bg === '#ffffff' ? '#ffffff' : '#ffffff',
-            textAlign: 'center',
-        });
-    }
-
     // Add uploaded product image layer
     if (uploadedImage) {
         layers.splice(2, 0, {
@@ -197,9 +133,9 @@ async function generateLayers(
     }
 
     // Add AI generated background image layer
-    let hfPrompt = `A professional advertising poster background for ${category}. ${prompt}. ${style.mood} style. high resolution, impressive graphic design, ultra detailed, no text`;
+    let hfPrompt = `A top notch professional advertising poster background for ${category}. ${prompt}. ${style.mood} style. high resolution, impressive graphic design, ultra detailed, no text`;
     if (brief) {
-        hfPrompt = `A professional advertising poster background for ${brief.productName}. Audience: ${brief.targetAudience}. Context: ${brief.additionalNotes || brief.productDescription}. ${style.mood} style. high resolution, impressive graphic design, ultra detailed, no text`;
+        hfPrompt = `A top notch professional advertising poster background for ${brief.productName}. Design Request: ${prompt}. Audience: ${brief.targetAudience}. Context: ${brief.additionalNotes}. ${style.mood} style. high resolution, impressive graphic design, ultra detailed, no text`;
     }
     const aiImage = await generateImageWithHF(hfPrompt);
     
@@ -216,15 +152,6 @@ async function generateLayers(
     }
 
     return layers;
-}
-
-function getCTAText(category: string): string {
-    const ctas: Record<string, string> = {
-        food: 'Order Now →', fashion: 'Shop Collection →', tech: 'Try Free →',
-        fitness: 'Join Today →', beauty: 'Book Now →', education: 'Enroll Now →',
-        event: 'Get Tickets →', realestate: 'Schedule Tour →', general: 'Learn More →',
-    };
-    return ctas[category] || 'Learn More →';
 }
 
 // ---- Clarifying Questions ----

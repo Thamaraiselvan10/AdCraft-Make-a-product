@@ -34,7 +34,7 @@ const STEPS = [
     { id: 'review', label: 'Review', icon: MessageSquare },
 ] as const;
 
-type StepId = typeof STEPS[number]['id'];
+
 
 export const PosterWizard: React.FC<PosterWizardProps> = ({ onComplete, onBack }) => {
     const [currentStep, setCurrentStep] = useState<number>(0);
@@ -177,7 +177,7 @@ export const PosterWizard: React.FC<PosterWizardProps> = ({ onComplete, onBack }
                                             <textarea
                                                 value={brief.productDescription}
                                                 onChange={e => updateBrief('productDescription', e.target.value)}
-                                                placeholder="Describe your product, key features, what makes it special..."
+                                                placeholder="Explain about your poster in a few sentences..."
                                                 rows={4}
                                                 className="w-full px-4 py-3 rounded-xl border border-border bg-card/50 text-sm outline-none focus:ring-2 focus:ring-primary/50 resize-none placeholder:text-muted-foreground"
                                             />
